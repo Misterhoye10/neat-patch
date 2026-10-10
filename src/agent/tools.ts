@@ -59,7 +59,32 @@ export const tools: Record<string, ToolDefinition> = {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
       let patchContent = "";
-      if (args.strategy === "apply_initial_fix") {
+      if (args.strategy === "fix_model_deprecation") {
+        // Self-heal model sunset / 404 deprecation error
+        patchContent = `// Auto-healed by NeatPatch: fixed model sunset 404 crash
+export interface ModelConfig {
+  provider: string;
+  model: string;
+  maxTokens: number;
+}
+
+export function getAgentConfig(): ModelConfig {
+  // Fixed: Fallback to active supported model
+  return {
+    provider: "google-genai",
+    model: process.env.GEMINI_MODEL || "gemini-1.5-flash",
+    maxTokens: 2048
+  };
+}
+
+export function callAgentProvider(config: ModelConfig): { success: boolean; activeModel: string } {
+  if (config.model === "gemini-2.5-flash") {
+    throw new Error("GoogleGenAIError: 404 Not Found: models/gemini-2.5-flash is discontinued.");
+  }
+  return { success: true, activeModel: config.model };
+}
+`;
+      } else if (args.strategy === "apply_initial_fix") {
         // Initial fix has a subtle edge case to demonstrate neatlogs failure trace & recovery!
         patchContent = `// Auto-generated patch by NeatPatch
 export function calculateMetrics(values: number[]): { average: number; count: number } {
