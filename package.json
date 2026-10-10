@@ -2,6 +2,11 @@
   "name": "neat-patch-agent",
   "version": "1.0.0",
   "description": "Autonomous Self-Healing Coding & Issue-to-PR Agent built with Neatlogs, Entire, and CFO.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Misterhoye10/neat-patch.git"
+  },
+  "author": "Folarin Oyewole (Team OVF)",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
