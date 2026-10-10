@@ -83,6 +83,39 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (url.pathname === "/api/swarm" && req.method === "POST") {
+    try {
+      const { SwarmCoordinator } = await import("../swarm/coordinator.js");
+      const swarm = new SwarmCoordinator();
+      const result = await swarm.orchestrate({
+        id: "swarm_goal_001",
+        title: "Autonomous Swarm Issue Resolution",
+        description: "Localize calculateMetrics, fix zero-division crash, verify test assertions",
+        expectedOutcome: "All 3 tests pass with Entire Checkpoint attached"
+      });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, result }));
+    } catch (err: any) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  if (url.pathname === "/api/benchmark") {
+    try {
+      const { BenchmarkRunner } = await import("../benchmarks/benchmark.js");
+      const runner = new BenchmarkRunner();
+      const comp = await runner.runBenchmark();
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, comparison: comp }));
+    } catch (err: any) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
   if (url.pathname === "/api/graph") {
     const graph = new EntireGraphService();
     const searchRes = graph.search("calculateMetrics");

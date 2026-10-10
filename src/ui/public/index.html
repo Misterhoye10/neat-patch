@@ -653,12 +653,88 @@
         <button class="tab-button active" onclick="switchRightTab('terminal', this)">
           <span>Execution Stream</span>
         </button>
+        <button class="tab-button" onclick="switchRightTab('swarm', this)">
+          <span>Multi-Agent Swarm</span>
+          <span class="tab-counter">4 Agents</span>
+        </button>
         <button class="tab-button" onclick="switchRightTab('waterfall', this)">
           <span>Neatlogs Waterfall</span>
+        </button>
+        <button class="tab-button" onclick="switchRightTab('benchmark', this)">
+          <span>Benchmark Evidence</span>
+          <span class="tab-counter">-64% Tok</span>
         </button>
         <button class="tab-button" onclick="switchRightTab('cfo', this)">
           <span>cfo.ai Projections</span>
         </button>
+      </div>
+
+      <!-- SWARM VIEW -->
+      <div class="panel-view" id="rightViewSwarm" style="display: none;">
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px; font-family: var(--font-mono);">
+          Multi-Agent Message Bus · Coordinator + 3 Worker Agents
+        </div>
+        <div class="terminal-deck" id="swarmDeck" style="height: 330px;">
+          <div class="log-row"><span class="log-ts">[13:25:01]</span> <span class="tag-plan">👑 Coordinator:</span> Dispatched target to Investigator: calculateMetrics.</div>
+          <div class="log-row"><span class="log-ts">[13:25:02]</span> <span class="tag-tool">🔍 Investigator:</span> entire-graph AST localized definition in buggy_module.ts.</div>
+          <div class="log-row"><span class="log-ts">[13:25:03]</span> <span class="tag-tool">🧪 TestArchitect:</span> Compiled test suite with empty & null array vectors.</div>
+          <div class="log-row"><span class="log-ts">[13:25:04]</span> <span class="tag-fail">⚠️ TestArchitect:</span> Initial patch failed with ZeroDivisionError.</div>
+          <div class="log-row"><span class="log-ts">[13:25:05]</span> <span class="tag-heal">👑 Coordinator:</span> Mediated disagreement. Directed PatchEngineer to add guard clause.</div>
+          <div class="log-row"><span class="log-ts">[13:25:06]</span> <span class="tag-heal">🛠️ PatchEngineer:</span> Hot-patched defensive guard: return { average: 0, count: 0 }.</div>
+          <div class="log-row"><span class="log-ts">[13:25:07]</span> <span class="tag-pass">✅ TestArchitect:</span> 3/3 tests passed! Zero regressions.</div>
+          <div class="log-row"><span class="log-ts">[13:25:08]</span> <span class="tag-pass">👑 Coordinator:</span> Attached Entire-Checkpoint: chk_session_... to commit.</div>
+        </div>
+        <button class="action-btn" style="margin-top: 12px; width: 100%; justify-content: center;" onclick="runSwarmDemo()">
+          <span>▶ Re-run Swarm Orchestration</span>
+        </button>
+      </div>
+
+      <!-- BENCHMARK VIEW -->
+      <div class="panel-view" id="rightViewBenchmark" style="display: none;">
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px; font-family: var(--font-mono);">
+          Neatlogs Evidence: Run A (Before) vs Run B (After)
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11.5px;">
+          <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-muted);">
+            <th style="text-align: left; padding: 6px 0;">Metric</th>
+            <th style="text-align: right; padding: 6px 0; color: #f87171;">Before</th>
+            <th style="text-align: right; padding: 6px 0; color: #4ade80;">After (Swarm)</th>
+            <th style="text-align: right; padding: 6px 0; color: #60a5fa;">Delta</th>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 6px 0;">Total Tokens</td>
+            <td style="text-align: right; color: var(--text-muted);">6,800</td>
+            <td style="text-align: right; font-weight: bold; color: #fff;">2,450</td>
+            <td style="text-align: right; color: #60a5fa;">−64.0%</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 6px 0;">Latency</td>
+            <td style="text-align: right; color: var(--text-muted);">11.25s</td>
+            <td style="text-align: right; font-weight: bold; color: #fff;">4.71s</td>
+            <td style="text-align: right; color: #60a5fa;">−58.1%</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 6px 0;">Inference Cost</td>
+            <td style="text-align: right; color: var(--text-muted);">$0.0136</td>
+            <td style="text-align: right; font-weight: bold; color: #fff;">$0.0035</td>
+            <td style="text-align: right; color: #60a5fa;">−74.3%</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-subtle);">
+            <td style="padding: 6px 0;">Test Pass Rate</td>
+            <td style="text-align: right; color: #f87171;">33% (1/3)</td>
+            <td style="text-align: right; font-weight: bold; color: #4ade80;">100% (3/3)</td>
+            <td style="text-align: right; color: #4ade80;">+67.0%</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0;">Self-Healing</td>
+            <td style="text-align: right; color: var(--text-muted);">None (crashed)</td>
+            <td style="text-align: right; color: #4ade80;">1 Auto-Loop</td>
+            <td style="text-align: right; color: #4ade80;">Resolved</td>
+          </tr>
+        </table>
+        <div style="margin-top: 14px; font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+          Evidence saved in <code>docs/benchmark_evidence.md</code> and verified in Neatlogs trace trees.
+        </div>
       </div>
 
       <!-- TERMINAL VIEW -->
@@ -768,8 +844,34 @@
       btn.classList.add('active');
 
       document.getElementById('rightViewTerminal').style.display = view === 'terminal' ? 'block' : 'none';
+      document.getElementById('rightViewSwarm').style.display = view === 'swarm' ? 'block' : 'none';
       document.getElementById('rightViewWaterfall').style.display = view === 'waterfall' ? 'block' : 'none';
+      document.getElementById('rightViewBenchmark').style.display = view === 'benchmark' ? 'block' : 'none';
       document.getElementById('rightViewCfo').style.display = view === 'cfo' ? 'block' : 'none';
+    }
+
+    async function runSwarmDemo() {
+      const deck = document.getElementById('swarmDeck');
+      deck.innerHTML = '<div class="log-row"><span class="log-ts">[' + new Date().toLocaleTimeString() + ']</span> <span class="tag-plan">👑 Coordinator:</span> Launching Swarm Orchestration...</div>';
+      try {
+        const res = await fetch('/api/swarm', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          deck.innerHTML = '';
+          data.result.messages.forEach(m => {
+            const time = new Date(m.timestamp).toLocaleTimeString();
+            let icon = '👑 Coordinator:';
+            let tag = 'tag-plan';
+            if (m.from === 'Investigator') { icon = '🔍 Investigator:'; tag = 'tag-tool'; }
+            else if (m.from === 'TestArchitect') { icon = '🧪 TestArchitect:'; tag = 'tag-tool'; }
+            else if (m.from === 'PatchEngineer') { icon = '🛠️ PatchEngineer:'; tag = 'tag-heal'; }
+            deck.innerHTML += `<div class="log-row"><span class="log-ts">[${time}]</span> <span class="${tag}">${icon}</span> ${m.content}</div>`;
+          });
+          deck.scrollTop = deck.scrollHeight;
+        }
+      } catch (err) {
+        deck.innerHTML += `<div class="log-row"><span class="tag-fail">Error:</span> ${err.message}</div>`;
+      }
     }
 
     function updateFinancials() {

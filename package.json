@@ -12,6 +12,8 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "ui": "tsx src/ui/server.ts",
+    "swarm": "tsx -e \"import { SwarmCoordinator } from './src/swarm/coordinator.js'; new SwarmCoordinator().orchestrate({ id: 'goal_swarm', title: 'Fix ZeroDivision via Swarm', description: 'calculateMetrics crash', expectedOutcome: 'Pass' });\"",
+    "benchmark": "tsx src/benchmarks/benchmark.ts",
     "agent": "tsx src/agent/run.ts",
     "test": "vitest run"
   },
