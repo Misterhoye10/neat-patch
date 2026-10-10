@@ -1,0 +1,24 @@
+{
+  "name": "neat-patch-agent",
+  "version": "1.0.0",
+  "description": "Autonomous Self-Healing Coding & Issue-to-PR Agent built with Neatlogs, Entire, and CFO.ai",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "ui": "tsx src/ui/server.ts",
+    "agent": "tsx src/agent/run.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "neatlogs": "^1.1.27",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0"
+  }
+}

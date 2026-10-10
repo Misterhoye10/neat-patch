@@ -1,0 +1,7 @@
+bin/
+node_modules/
+dist/
+.env
+.neatlogs/
+.entire/checkpoints/chk_*.json
+tests/*.test.ts.tmp

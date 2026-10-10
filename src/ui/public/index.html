@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeatPatch · Autonomous Self-Healing Agent Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #090b10;
+      --bg-surface: #10141d;
+      --bg-surface-elevated: #161c28;
+      --bg-input: #0c0f16;
+      
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      
+      --text-heading: #f8fafc;
+      --text-body: #cbd5e1;
+      --text-muted: #64748b;
+      --text-subtle: #475569;
+      
+      --brand-primary: #3b82f6;
+      --brand-primary-hover: #2563eb;
+      --brand-glow: rgba(59, 130, 246, 0.15);
+      
+      --emerald-accent: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.1);
+      --rose-accent: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.1);
+      --amber-accent: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.1);
+      
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-body);
+      font-family: var(--font-ui);
+      font-size: 13.5px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP APPLICATION BAR */
+    header {
+      background: rgba(16, 20, 29, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-heading);
+    }
+
+    .brand-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-heading);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .version-tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 1px 7px;
+      border-radius: 4px;
+    }
+
+    .stack-badges {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-body);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald-accent);
+      box-shadow: 0 0 8px var(--emerald-accent);
+    }
+
+    .action-btn {
+      background: var(--brand-primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--brand-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* SUB-HEADER / PIPELINE STAGES */
+    .pipeline-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .pipeline-steps {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+    }
+
+    .step-item.active {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+
+    .step-item.completed {
+      background: var(--emerald-soft);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: var(--emerald-accent);
+    }
+
+    .step-sep { color: var(--text-subtle); font-size: 10px; }
+
+    /* METRICS STRIP */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 20px 28px 0 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-heading);
+    }
+
+    .metric-badge {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--emerald-soft);
+      color: var(--emerald-accent);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    /* MAIN SPLIT WORKSPACE */
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 20px;
+      padding: 20px 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    .panel-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .panel-tabs {
+      background: var(--bg-surface-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+
+    .tab-button {
+      padding: 10px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-button:hover { color: var(--text-body); }
+    .tab-button.active {
+      color: var(--text-heading);
+      border-bottom-color: var(--brand-primary);
+      font-weight: 600;
+    }
+
+    .tab-counter {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--bg-input);
+      color: var(--text-muted);
+    }
+
+    .panel-view {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* CODE DIFF STUDIO */
+    .file-strip {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px 6px 0 0;
+      padding: 8px 14px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .diff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      overflow: hidden;
+    }
+
+    .diff-table td { padding: 3px 12px; }
+    .diff-num {
+      width: 44px;
+      text-align: right;
+      color: var(--text-subtle);
+      user-select: none;
+      border-right: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .line-context { color: var(--text-muted); }
+    .line-del { background: var(--rose-soft); color: #fca5a5; }
+    .line-del .diff-num { color: #f87171; background: rgba(244, 63, 94, 0.15); }
+    .line-add { background: var(--emerald-soft); color: #86efac; }
+    .line-add .diff-num { color: #4ade80; background: rgba(16, 185, 129, 0.15); }
+
+    /* CONSOLE & LOG VIEWER */
+    .terminal-deck {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      height: 380px;
+      overflow-y: auto;
+      color: #cbd5e1;
+    }
+
+    .log-row {
+      margin-bottom: 5px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .log-ts { color: var(--text-subtle); }
+    .tag-plan { color: #60a5fa; font-weight: 500; }
+    .tag-tool { color: #c084fc; font-weight: 500; }
+    .tag-fail { color: #f87171; font-weight: 600; }
+    .tag-heal { color: #fbbf24; font-weight: 600; }
+    .tag-pass { color: #34d399; font-weight: 600; }
+
+    /* WATERFALL TIMELINE FOR NEATLOGS */
+    .span-bar-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 70px;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .span-track {
+      background: var(--bg-input);
+      height: 16px;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .span-fill {
+      height: 100%;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 9.5px;
+      color: #fff;
+    }
+
+    .fill-agent { background: #3b82f6; }
+    .fill-tool { background: #8b5cf6; }
+    .fill-fail { background: #ef4444; }
+    .fill-heal { background: #f59e0b; }
+    .fill-pass { background: #10b981; }
+
+    /* CFO FINANCIAL SLIDER SECTION */
+    .cfo-slider-wrap {
+      margin: 18px 0;
+    }
+
+    .cfo-slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--brand-primary);
+    }
+
+    .financial-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .financial-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .fin-label { font-size: 11px; color: var(--text-muted); }
+    .fin-val { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--text-heading); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- APP HEADER -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">
+          NeatPatch Studio
+          <span class="version-tag">neatHack 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack-badges">
+      <div class="pill-indicator">
+        <span class="status-dot"></span>
+        <span>Entire Graph v0.4.0</span>
+      </div>
+      <div class="pill-indicator">
+        <span>Neatlogs SDK Traced</span>
+      </div>
+      <div class="pill-indicator">
+        <span>cfo.ai Planned</span>
+      </div>
+
+      <button class="action-btn" id="runBtn" onclick="runPipeline()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>Execute Autonomous Fix</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKFLOW PIPELINE BAR -->
+  <div class="pipeline-bar">
+    <div class="pipeline-steps">
+      <div class="step-item completed">
+        <span>✓ 01. Ingestion</span>
+      </div>
+      <span class="step-sep">/</span>
+      <div class="step-item completed">
+        <span>✓ 02. Entire Graph AST</span>
+      </div>
+      <span class="step-sep">/</span>
+      <div class="step-item completed">
+        <span>✓ 03. Hot Patch</span>
+      </div>
+      <span class="step-sep">/</span>
+      <div class="step-item completed">
+        <span>✓ 04. Vitest Adjudication</span>
+      </div>
+      <span class="step-sep">/</span>
+      <div class="step-item completed">
+        <span>✓ 05. Self-Healing Recovery</span>
+      </div>
+      <span class="step-sep">/</span>
+      <div class="step-item completed" id="chkStepBadge">
+        <span>✓ 06. Entire Checkpoint</span>
+      </div>
+    </div>
+
+    <div style="font-family: var(--font-mono); font-size: 11px;">
+      Issue: <strong style="color: var(--text-heading);">#42 ZeroDivision & NullPointer in calculateMetrics</strong>
+    </div>
+  </div>
+
+  <!-- TOP METRICS STRIP -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Autonomous Verification</div>
+      <div class="metric-value-row">
+        <span class="metric-value">3 / 3</span>
+        <span class="metric-badge">All Tests Pass</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Self-Healing Loops</div>
+      <div class="metric-value-row">
+        <span class="metric-value">1 Event</span>
+        <span class="metric-badge" style="background: var(--amber-soft); color: var(--amber-accent); border-color: rgba(245,158,11,0.2);">ZeroDivision Healed</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Neatlogs Total Latency</div>
+      <div class="metric-value-row">
+        <span class="metric-value" id="latencyVal">4.71s</span>
+        <span class="metric-badge">8 Spans Traced</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Unit Economics (cfo.ai)</div>
+      <div class="metric-value-row">
+        <span class="metric-value">$0.0035</span>
+        <span class="metric-badge">83% Gross Margin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace-layout">
+
+    <!-- LEFT PANE: CODE DIFF & REPO GRAPH -->
+    <div class="panel-container">
+      <div class="panel-tabs">
+        <button class="tab-button active" onclick="switchLeftTab('diff', this)">
+          <span>Source Code Diff</span>
+          <span class="tab-counter">+4 -4</span>
+        </button>
+        <button class="tab-button" onclick="switchLeftTab('graph', this)">
+          <span>Entire Graph Map</span>
+          <span class="tab-counter">AST</span>
+        </button>
+        <button class="tab-button" onclick="switchLeftTab('checkpoint', this)">
+          <span>Entire Checkpoints</span>
+          <span class="tab-counter">Git</span>
+        </button>
+      </div>
+
+      <div class="panel-view" id="leftViewDiff">
+        <div class="file-strip">
+          <span>src/sample/buggy_module.ts</span>
+          <span style="color: var(--emerald-accent);">Autonomous Patch Applied</span>
+        </div>
+        <table class="diff-table">
+          <tr class="line-context"><td class="diff-num">1</td><td class="diff-num">1</td><td>export function calculateMetrics(values: number[]): { average: number; count: number } {</td></tr>
+          <tr class="line-del"><td class="diff-num">2</td><td class="diff-num"></td><td>-   if (!values) throw new Error("Null pointer: values array cannot be null");</td></tr>
+          <tr class="line-del"><td class="diff-num">3</td><td class="diff-num"></td><td>-   if (values.length === 0) {</td></tr>
+          <tr class="line-del"><td class="diff-num">4</td><td class="diff-num"></td><td>-     throw new Error("ZeroDivisionError: values array is empty");</td></tr>
+          <tr class="line-del"><td class="diff-num">5</td><td class="diff-num"></td><td>-   }</td></tr>
+          <tr class="line-add"><td class="diff-num"></td><td class="diff-num">2</td><td>+   if (!values || values.length === 0) {</td></tr>
+          <tr class="line-add"><td class="diff-num"></td><td class="diff-num">3</td><td>+     return { average: 0, count: 0 };</td></tr>
+          <tr class="line-add"><td class="diff-num"></td><td class="diff-num">4</td><td>+   }</td></tr>
+          <tr class="line-context"><td class="diff-num">6</td><td class="diff-num">5</td><td>    const sum = values.reduce((a, b) => a + b, 0);</td></tr>
+          <tr class="line-context"><td class="diff-num">7</td><td class="diff-num">6</td><td>    return { average: sum / values.length, count: values.length };</td></tr>
+          <tr class="line-context"><td class="diff-num">8</td><td class="diff-num">7</td><td>}</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-view" id="leftViewGraph" style="display: none;">
+        <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: var(--brand-primary); margin-bottom: 8px;">[entire graph search] Target: `calculateMetrics`</div>
+          <div style="color: var(--text-muted); margin-bottom: 14px;">Parsed locally via tree-sitter without network egress.</div>
+          
+          <div style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 6px; margin-bottom: 8px;">
+            <div style="color: #fff; font-weight: 600;">Node: calculateMetrics</div>
+            <div style="color: var(--text-muted); font-size: 11px;">Path: src/sample/buggy_module.ts:1-8</div>
+            <div style="color: var(--emerald-accent); font-size: 11px; margin-top: 4px;">• Callers: src/sample/server.ts:42</div>
+            <div style="color: var(--emerald-accent); font-size: 11px;">• Test Suite: tests/sample.test.ts:18</div>
+          </div>
+
+          <div style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            <div style="color: #fff; font-weight: 600;">Blast Radius Analysis (entire-graph impact)</div>
+            <div style="color: var(--text-muted); font-size: 11px;">Changing signature impacts 2 consumers; 0 external regressions detected.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-view" id="leftViewCheckpoint" style="display: none;">
+        <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: var(--emerald-accent); margin-bottom: 6px;">Git Trailer Attached:</div>
+          <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 8px 12px; border-radius: 4px; color: #fff; word-break: break-all;">
+            Entire-Checkpoint: chk_session_1791552215830_7_1791552220543
+          </div>
+          <div style="color: var(--text-muted); font-size: 11.5px; margin-top: 12px; line-height: 1.6;">
+            Every prompt reasoning step, AST diff, and test run is snapshotted onto the <code>entire/checkpoints/v1</code> ref. If any regression occurs in production, any developer can rewind to this exact decision context.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE: TELEMETRY & OBSERVABILITY -->
+    <div class="panel-container">
+      <div class="panel-tabs">
+        <button class="tab-button active" onclick="switchRightTab('terminal', this)">
+          <span>Execution Stream</span>
+        </button>
+        <button class="tab-button" onclick="switchRightTab('waterfall', this)">
+          <span>Neatlogs Waterfall</span>
+        </button>
+        <button class="tab-button" onclick="switchRightTab('cfo', this)">
+          <span>cfo.ai Projections</span>
+        </button>
+      </div>
+
+      <!-- TERMINAL VIEW -->
+      <div class="panel-view" id="rightViewTerminal">
+        <div class="terminal-deck" id="terminalDeck">
+          <div class="log-row"><span class="log-ts">[13:22:15]</span> <span class="tag-plan">PLAN</span> Analyzing issue: Fix ZeroDivision & NullPointer.</div>
+          <div class="log-row"><span class="log-ts">[13:22:16]</span> <span class="tag-tool">TOOL</span> entire_graph_search("calculateMetrics") -> symbol localized.</div>
+          <div class="log-row"><span class="log-ts">[13:22:16]</span> <span class="tag-tool">TOOL</span> entire_graph_impact -> callers: server.ts, sample.test.ts.</div>
+          <div class="log-row"><span class="log-ts">[13:22:18]</span> <span class="tag-tool">TOOL</span> file_patch -> wrote initial fix.</div>
+          <div class="log-row"><span class="log-ts">[13:22:20]</span> <span class="tag-fail">FAIL</span> vitest test_runner -> ZeroDivisionError & NullPointer on empty array.</div>
+          <div class="log-row"><span class="log-ts">[13:22:20]</span> <span class="tag-heal">HEAL</span> Entire Checkpoint snapshot saved. Initiating self-healing reflection.</div>
+          <div class="log-row"><span class="log-ts">[13:22:21]</span> <span class="tag-heal">TOOL</span> file_patch -> hot-patched guard clauses for null/empty arrays.</div>
+          <div class="log-row"><span class="log-ts">[13:22:22]</span> <span class="tag-pass">PASS</span> vitest test_runner -> 3/3 passed (0 errors). Entire Checkpoint saved.</div>
+        </div>
+      </div>
+
+      <!-- NEATLOGS WATERFALL VIEW -->
+      <div class="panel-view" id="rightViewWaterfall" style="display: none;">
+        <div style="margin-bottom: 12px; font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">
+          Span Hierarchy · OpenTelemetry Compliant
+        </div>
+        <div class="span-bar-row">
+          <span>autonomous_agent_run</span>
+          <div class="span-track"><div class="span-fill fill-agent" style="width: 100%;">Root (4.71s)</div></div>
+          <span style="text-align: right; color: var(--text-muted);">$0.0035</span>
+        </div>
+        <div class="span-bar-row">
+          <span style="padding-left: 10px;">↳ entire_graph_search</span>
+          <div class="span-track"><div class="span-fill fill-tool" style="width: 15%; margin-left: 2%;">224ms</div></div>
+          <span style="text-align: right; color: var(--text-muted);">-</span>
+        </div>
+        <div class="span-bar-row">
+          <span style="padding-left: 10px;">↳ test_runner (vitest)</span>
+          <div class="span-track"><div class="span-fill fill-fail" style="width: 45%; margin-left: 17%;">Fail (4.27s)</div></div>
+          <span style="text-align: right; color: var(--rose-accent);">0/3</span>
+        </div>
+        <div class="span-bar-row">
+          <span style="padding-left: 20px;">↳ self_healing_recovery</span>
+          <div class="span-track"><div class="span-fill fill-heal" style="width: 18%; margin-left: 62%;">Reflect</div></div>
+          <span style="text-align: right; color: var(--text-muted);">$0.0008</span>
+        </div>
+        <div class="span-bar-row">
+          <span style="padding-left: 10px;">↳ test_runner (rerun)</span>
+          <div class="span-track"><div class="span-fill fill-pass" style="width: 15%; margin-left: 80%;">Pass</div></div>
+          <span style="text-align: right; color: var(--emerald-accent);">3/3</span>
+        </div>
+      </div>
+
+      <!-- CFO VIEW -->
+      <div class="panel-view" id="rightViewCfo" style="display: none;">
+        <div class="cfo-slider-wrap">
+          <div class="cfo-slider-header">
+            <span>MONTHLY CUSTOMER SEATS</span>
+            <strong id="seatCount" style="color: var(--text-heading); font-family: var(--font-mono);">100</strong>
+          </div>
+          <input type="range" id="seatRange" min="20" max="500" value="100" oninput="updateFinancials()">
+        </div>
+
+        <div class="cfo-slider-wrap">
+          <div class="cfo-slider-header">
+            <span>AUTONOMOUS FIXES PER SEAT / MO</span>
+            <strong id="fixCount" style="color: var(--text-heading); font-family: var(--font-mono);">40</strong>
+          </div>
+          <input type="range" id="fixRange" min="10" max="100" value="40" oninput="updateFinancials()">
+        </div>
+
+        <div class="financial-grid">
+          <div class="financial-box">
+            <div class="fin-label">Monthly Revenue</div>
+            <div class="fin-val" id="finRev">$2,000</div>
+          </div>
+          <div class="financial-box">
+            <div class="fin-label">Inference & Infra COGS</div>
+            <div class="fin-val" id="finCogs" style="color: #f87171;">$400</div>
+          </div>
+          <div class="financial-box">
+            <div class="fin-label">Monthly Gross Profit</div>
+            <div class="fin-val" id="finGross" style="color: #4ade80;">$1,600</div>
+          </div>
+          <div class="financial-box">
+            <div class="fin-label">Blended SaaS Margin</div>
+            <div class="fin-val" id="finMargin" style="color: #60a5fa;">80.0%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function switchLeftTab(view, btn) {
+      document.querySelectorAll('.panel-tabs .tab-button').forEach(b => {
+        if (b.parentElement === btn.parentElement) b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      document.getElementById('leftViewDiff').style.display = view === 'diff' ? 'block' : 'none';
+      document.getElementById('leftViewGraph').style.display = view === 'graph' ? 'block' : 'none';
+      document.getElementById('leftViewCheckpoint').style.display = view === 'checkpoint' ? 'block' : 'none';
+    }
+
+    function switchRightTab(view, btn) {
+      document.querySelectorAll('.panel-tabs .tab-button').forEach(b => {
+        if (b.parentElement === btn.parentElement) b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      document.getElementById('rightViewTerminal').style.display = view === 'terminal' ? 'block' : 'none';
+      document.getElementById('rightViewWaterfall').style.display = view === 'waterfall' ? 'block' : 'none';
+      document.getElementById('rightViewCfo').style.display = view === 'cfo' ? 'block' : 'none';
+    }
+
+    function updateFinancials() {
+      const seats = parseInt(document.getElementById('seatRange').value);
+      const fixes = parseInt(document.getElementById('fixRange').value);
+
+      document.getElementById('seatCount').textContent = seats;
+      document.getElementById('fixCount').textContent = fixes;
+
+      const totalRuns = seats * fixes;
+      const rev = seats * 20;
+      const cogs = Math.round(totalRuns * 0.0035 + (seats * 3.8));
+      const gross = rev - cogs;
+      const margin = ((gross / rev) * 100).toFixed(1);
+
+      document.getElementById('finRev').textContent = '$' + rev.toLocaleString();
+      document.getElementById('finCogs').textContent = '$' + cogs.toLocaleString();
+      document.getElementById('finGross').textContent = '$' + gross.toLocaleString();
+      document.getElementById('finMargin').textContent = margin + '%';
+    }
+
+    async function runPipeline() {
+      const btn = document.getElementById('runBtn');
+      const terminal = document.getElementById('terminalDeck');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span>Executing Agent Loop...</span>';
+
+      terminal.innerHTML += '<div class="log-row"><span class="log-ts">[' + new Date().toLocaleTimeString() + ']</span> <span class="tag-plan">DISPATCH</span> Initiating fresh agent loop...</div>';
+
+      try {
+        const res = await fetch('/api/run', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+          terminal.innerHTML = '';
+          data.state.history.forEach(s => {
+            const time = new Date(s.timestamp).toLocaleTimeString();
+            let tagClass = 'tag-plan';
+            let tagText = 'PLAN';
+            if (s.status === 'failure') { tagClass = 'tag-fail'; tagText = 'FAIL'; }
+            else if (s.action === 'recover_and_patch') { tagClass = 'tag-heal'; tagText = 'HEAL'; }
+            else if (s.toolName) { tagClass = 'tag-tool'; tagText = 'TOOL'; }
+            else if (s.action === 'finish') { tagClass = 'tag-pass'; tagText = 'PASS'; }
+
+            terminal.innerHTML += `<div class="log-row"><span class="log-ts">[${time}]</span> <span class="${tagClass}">${tagText}</span> ${s.thought}</div>`;
+          });
+
+          terminal.innerHTML += `<div class="log-row"><span class="log-ts">[${new Date().toLocaleTimeString()}]</span> <span class="tag-pass">DONE</span> Session Checkpointed: ${data.checkpointId}</div>`;
+          terminal.scrollTop = terminal.scrollHeight;
+        }
+      } catch (err) {
+        terminal.innerHTML += `<div class="log-row"><span class="log-ts">[${new Date().toLocaleTimeString()}]</span> <span class="tag-fail">ERR</span> ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Execute Autonomous Fix</span>';
+      }
+    }
+  </script>
+</body>
+</html>
