@@ -1,6 +1,9 @@
 # NeatPatch AI 🛡️
 > **Autonomous Issue-to-PR & Self-Healing Coding Agent**  
-> Built by **Team OVF (Folarin Oyewole)** for **neatHack 2026** (Oct 10–12).
+> Built by **Team OVF (Folarin Oyewole, Passenger #1119)** for **neatHack 2026** (Oct 10–12).
+
+📺 **[Watch 2-Minute Demo Video (Google Drive)](https://drive.google.com/file/d/1POU4IrMjP5HaFn6cnirFtjewxvGrminw/view?usp=sharing)**  
+📦 **[GitHub Repository](https://github.com/Misterhoye10/neat-patch)**
 
 ---
 
@@ -43,8 +46,8 @@ NeatPatch is engineered to leverage the **3 core partner pillars**:
 
 ### Installation
 ```bash
-git clone https://github.com/Misttterhoye/Neat.git
-cd Neat
+git clone https://github.com/Misterhoye10/neat-patch.git
+cd neat-patch
 npm install
 ```
 
